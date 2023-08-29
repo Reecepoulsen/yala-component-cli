@@ -14,11 +14,16 @@
 	},
 	"keywords": [
 		"yala-component-cli",
+		"ServiceNow",
+		"Custom Component",
+		"Now CLI",
 		"Reece Poulsen"
 	],
 	"files": [
 		"index.js",
-		"utils"
+		"utils",
+		"helpers",
+		"commands"
 	],
 	"scripts": {
 		"format": "prettier --write \"./**/*.{js,json}\""
