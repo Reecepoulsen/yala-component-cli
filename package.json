@@ -1,7 +1,7 @@
 {
 	"name": "yala-component-cli",
 	"description": "Yansa Labs' improved CLI solution for custom component development in ServiceNow",
-	"version": "1.0.6",
+	"version": "1.0.7",
 	"license": "UNLICENSED",
 	"bin": {
 		"yala-component-cli": "index.js",
