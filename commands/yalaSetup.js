@@ -111,7 +111,7 @@ const createProject = async profile => {
 			validate: value => {
 				const pattern = /^[a-zA-Z0-9\s]+$/;
 				if (!pattern.test(value)) {
-					return 'The project folder name can only contain alphanumerics and spaces';
+					return 'The app name can only contain alphanumerics and spaces';
 				}
 				return true;
 			}
