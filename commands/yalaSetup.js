@@ -107,14 +107,7 @@ const createProject = async profile => {
 			type: 'input',
 			message:
 				'Enter the name of the application that this component project should be connected to:',
-			required: true,
-			validate: value => {
-				const pattern = /^[a-z0-9-]*$/;
-				if (!pattern.test(value)) {
-					return 'Application names can only contain lowercased letters, numbers, and hyphens';
-				}
-				return true;
-			}
+			required: true
 		}
 	]);
 
@@ -124,7 +117,14 @@ const createProject = async profile => {
 		name: 'confirmedName',
 		type: 'input',
 		message: 'Project folder name:',
-		initial: `${name}-components`
+		initial: `${name}-components`,
+		validate: value => {
+			const pattern = /^[a-z0-9-]*$/;
+			if (!pattern.test(value)) {
+				return 'The projext folder name can only contain lowercased letters, numbers, and hyphens';
+			}
+			return true;
+		}
 	});
 
 	// Create a folder for the component project and switch to that folder
