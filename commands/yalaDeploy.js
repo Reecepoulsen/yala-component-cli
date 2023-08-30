@@ -124,6 +124,10 @@ const addFolderToZip = (folderPath, parentZipFolder) => {
  * @returns The name of the zip file for the project
  */
 const saveProjectLocal = async () => {
+	const curPathDirs = process.cwd().split(path.sep);
+	const projectDirName = curPathDirs[curPathDirs.length - 1];
+	console.log(projectDirName);
+
 	const { template } = await prompt({
 		name: 'template',
 		type: 'snippet',
@@ -136,7 +140,8 @@ const saveProjectLocal = async () => {
 					if (!pattern.test(value.filename))
 						return 'Invalid filename';
 					return true;
-				}
+				},
+				initial: projectDirName
 			}
 		],
 		template: `\${filename}.zip`
