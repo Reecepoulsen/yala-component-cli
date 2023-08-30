@@ -8,6 +8,7 @@ const fs = require('fs');
 const { log } = require('../utils/log.js');
 const {
 	checkNodeVersion,
+	checkNowCLI,
 	createFolder,
 	createFile,
 	printHeader,
@@ -55,59 +56,6 @@ const checkFolder = async () => {
 };
 
 /**
- * Runs the 'snc --help' command to test if the Now CLI is installed
- * @returns boolean indicating if the Now CLI is installed
- */
-const checkNowCLI = async () => {
-	let nowCliInstalled = true;
-
-	// Create a spinner and start it
-	const cliCheckSpinner = ora(
-		chalk.blue('Checking to see if the Now CLI is installed')
-	).start();
-
-	const commandPromise = new Promise((resolve, reject) => {
-		// spawn a child process to run the 'snc --help' command
-		const sncHelp = spawn('snc', ['--help']);
-		sncHelp.stderr.on('data', data => {
-			// if there is data sent to the error stream then the cli is not installed
-			nowCliInstalled = false;
-		});
-
-		sncHelp.on('close', code => {
-			resolve(nowCliInstalled);
-		});
-	});
-
-	nowCliInstalled = await commandPromise;
-
-	if (nowCliInstalled) {
-		// Now CLI is installed, stop the spinner with a green success message
-		cliCheckSpinner.succeed(chalk.green('Now CLI installed'));
-	} else {
-		// Now CLI is not installed, stop the spinner with a red fail message
-		cliCheckSpinner.fail(chalk.red('Now CLI not installed'));
-
-		// Log that the Now CLI is required
-		console.log(
-			chalk.red(
-				`In order to use the Yansa Labs Component CLI you must have the Now CLI installed`
-			)
-		);
-
-		// Log the link to install the Now CLI
-		console.log(
-			chalk.yellow(
-				`Install the Now CLI here: https://store.servicenow.com/sn_appstore_store.do#!/store/application/9085854adbb52810122156a8dc961910`
-			)
-		);
-	}
-
-	// return whether or not the Now CLI is installed
-	return nowCliInstalled;
-};
-
-/**
  * Runs through some checks to see if the current environment meets the requirements to run this command
  * @returns boolean indicating if all requirements were met
  */
@@ -136,7 +84,7 @@ const createProject = async profile => {
 	printHeader('Create project');
 
 	// Prompt to collect the project name and scope to use for the project
-	const { name, scope } = await prompt([
+	let { name, scope } = await prompt([
 		{
 			name: 'scope',
 			type: 'input',
@@ -170,9 +118,18 @@ const createProject = async profile => {
 		}
 	]);
 
+	name = name.toLowerCase().replace(' ', '-');
+
+	const { confirmedName } = await prompt({
+		name: 'confirmedName',
+		type: 'input',
+		message: 'Project folder name:',
+		initial: `${name}-components`
+	});
+
 	// Create a folder for the component project and switch to that folder
-	await createFolder(`${name}-components`);
-	process.chdir(`${name}-components`);
+	await createFolder(confirmedName);
+	process.chdir(confirmedName);
 
 	const commandPromise = new Promise(async (resolve, reject) => {
 		let commandSuccess = true;
@@ -194,11 +151,18 @@ const createProject = async profile => {
 			{ stdio: [0, 'pipe', 0] }
 		);
 		createProject.stdout.on('data', output => {
-			if (output.toString().includes('Response code 400 (Bad Request)')) {
+			if (
+				output.toString().includes('Response code 400 (Bad Request)') ||
+				output
+					.toString()
+					.includes(
+						'Cannot scaffold a project in a non-empty folder! '
+					)
+			) {
 				console.log(chalk.red(output));
 				commandSuccess = false;
 			} else {
-				console.log(output);
+				console.log(output.toString());
 			}
 		});
 
