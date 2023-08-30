@@ -5,6 +5,10 @@ const ora = require('ora');
 const { spawn } = require('child_process');
 const { printHeader } = require('./utilities.js');
 
+/**
+ * Runs the 'yala -v' command to get the current version of the CLI
+ * @returns The current version of yala-component-cli
+ */
 const getCurrentVersion = async () => {
 	// run yala -v to see what is installed
 	const yalaVersionCommand = new Promise((resolve, reject) => {
@@ -16,6 +20,10 @@ const getCurrentVersion = async () => {
 	return yalaVersionCommand;
 };
 
+/**
+ * Runs the 'nmpm view yala-component-cli version' command to get the latest version of the CLI
+ * @returns The latest version number of the yala-component-cli
+ */
 const getLatestVersion = async () => {
 	// run npm view yala-component-cli to check the latest version
 	const npmViewCommand = new Promise((resolve, reject) => {
