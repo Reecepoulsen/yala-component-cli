@@ -8,7 +8,7 @@
 		"yala": "index.js"
 	},
 	"author": {
-		"name": "Reece Poulsen",
+		"name": "Yansa Labs",
 		"email": "reece.poulsen@yansalabs.com",
 		"url": "https://www.yansalabs.com/"
 	},
@@ -17,7 +17,7 @@
 		"ServiceNow",
 		"Custom Component",
 		"Now CLI",
-		"Reece Poulsen"
+		"Yansa Labs"
 	],
 	"files": [
 		"index.js",
@@ -29,7 +29,7 @@
 		"format": "prettier --write \"./**/*.{js,json}\""
 	},
 	"dependencies": {
-		"axios": "^1.4.0",
+		"axios": "^0.27.2",
 		"chalk": "^4.1.2",
 		"cli-alerts": "^1.2.2",
 		"cli-handle-error": "^4.4.0",
