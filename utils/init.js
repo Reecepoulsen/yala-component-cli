@@ -3,7 +3,6 @@ const unhandled = require('cli-handle-unhandled');
 const chalk = require('chalk');
 const ora = require('ora');
 const { spawn } = require('child_process');
-const { printHeader } = require('./utilities.js');
 
 /**
  * Runs the 'yala -v' command to get the current version of the CLI
@@ -21,7 +20,7 @@ const getCurrentVersion = async () => {
 };
 
 /**
- * Runs the 'nmpm view yala-component-cli version' command to get the latest version of the CLI
+ * Runs the 'npm view yala-component-cli version' command to get the latest version of the CLI
  * @returns The latest version number of the yala-component-cli
  */
 const getLatestVersion = async () => {
