@@ -8,7 +8,7 @@ const init = ({ clear = true }) => {
 		tagLine: `by Yansa Labs`,
 		description:
 			"Yansa Labs' improved CLI solution for ServiceNow custom component development",
-		version: '1.0.3',
+		version: '1.0.4',
 		bgColor: '#36BB09',
 		color: '#000000',
 		bold: true,
