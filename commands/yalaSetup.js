@@ -175,6 +175,7 @@ const createProject = async profile => {
 	process.chdir(`${name}-components`);
 
 	const commandPromise = new Promise(async (resolve, reject) => {
+		let commandSuccess = true;
 		console.log(chalk.blue('\nBuilding project'));
 		// Spawn a child process to run the 'snc ui-component project --name <proj_name> --scope <scope>' command
 		// This child will use the parent's input, output, and error streams
@@ -190,11 +191,19 @@ const createProject = async profile => {
 				'--name',
 				`${name}-components`
 			],
-			{ stdio: [0, 0, 0] }
+			{ stdio: [0, 'pipe', 0] }
 		);
+		createProject.stdout.on('data', output => {
+			if (output.toString().includes('Response code 400 (Bad Request)')) {
+				console.log(chalk.red(output));
+				commandSuccess = false;
+			} else {
+				console.log(output);
+			}
+		});
 
 		createProject.on('close', code => {
-			resolve(true);
+			resolve(commandSuccess);
 		});
 	});
 
