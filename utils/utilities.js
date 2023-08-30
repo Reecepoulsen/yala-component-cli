@@ -6,7 +6,7 @@ const enquirer = require('enquirer');
 const { prompt } = enquirer;
 
 /**
- * Helper function: Logs a header to the console using a standard format
+ * Utility function: Logs a header to the console using a standard format
  * @param {string} text Text string to display in the header
  */
 const printHeader = text => {
@@ -14,7 +14,7 @@ const printHeader = text => {
 };
 
 /**
- * Helper function: Creates a directory or path of directories
+ * Utility function: Creates a directory or path of directories
  * @param {string} name The name or path of the directory you wish to create
  */
 const createFolder = async name => {
@@ -22,7 +22,7 @@ const createFolder = async name => {
 };
 
 /**
- * Helper function: Creates a file with the specified name or name + path and contents
+ * Utility function: Creates a file with the specified name or name + path and contents
  * @param {string} fileName The name or path + name of the file you would like to create
  * @param {string} contents The contents for the file
  */
@@ -32,7 +32,7 @@ const createFile = async (fileName, contents) => {
 };
 
 /**
- * Helper function: Checks the version of node being run. Logs some helpful info if running an unsupported node version
+ * Utility function: Checks the version of node being run. Logs some helpful info if running an unsupported node version
  * @returns String with the current running version of node, false if its an unsupported version
  */
 const checkNodeVersion = async () => {
@@ -94,7 +94,7 @@ const checkNodeVersion = async () => {
 };
 
 /**
- * Helper function: Gets the contents of now-ui.json and returns it as a json object.
+ * Utility function: Gets the contents of now-ui.json and returns it as a json object.
  * Throws an error if unable to locate the file at the specified path
  * @param {string} nowUIJsonPath the path to the now-ui.json file
  * @returns json object containing the contents of the now-ui.json file
@@ -114,7 +114,7 @@ const getNowUIJson = async nowUIJsonPath => {
 };
 
 /**
- * Helper function: Prompts the user to select a component from the list of components in the now-ui.json
+ * Utility function: Prompts the user to select a component from the list of components in the now-ui.json
  * and returns their choice
  * @param {object} nowUIJson The nowUIJson object
  * @param {string} message A message to print when prompting the user to select a component
@@ -136,16 +136,31 @@ const selectComponentFromNowUIJson = async (nowUIJson, message) => {
 };
 
 /**
- * Helper function: Returns a hard coded list of field types that are viable for component properties in UI Builder
+ * Utility function: Returns a hard coded list of field types that are viable for component properties in UI Builder
  * @returns A list of fieldType strings
  */
 const getFieldTypes = () => {
-	const fieldTypes = ['Choice', 'HTML', 'Icon', 'List', 'String'];
+	const fieldTypes = [
+		'choice',
+		'condition_string',
+		'field',
+		'field_list',
+		'html',
+		'icon',
+		'list',
+		'string',
+		'table_name',
+		'reference',
+		'json',
+		'number',
+		'css',
+		'url'
+	];
 	return fieldTypes;
 };
 
 /**
- * Helper function: Runs the 'snc configure profile list' command and returns the json object it outputs
+ * Utility function: Runs the 'snc configure profile list' command and returns the json object it outputs
  * @returns An object containing the profile data
  */
 const getProfilesJson = async () => {
@@ -187,7 +202,7 @@ const getProfilesJson = async () => {
 };
 
 /**
- * Helper function: Prompts the user for a new profile name and then runs the 'snc configure profile set' command
+ * Utility function: Prompts the user for a new profile name and then runs the 'snc configure profile set' command
  * returns the name of the profile after its created and set
  * @returns A string for the name of the newly created profile
  */
@@ -226,7 +241,7 @@ const createProfile = async () => {
 };
 
 /**
- * Helper function: Prompts the user to select an existing profile or create one.
+ * Utility function: Prompts the user to select an existing profile or create one.
  * @returns A string for the name of the selected profile
  */
 const getProfile = async () => {
@@ -248,6 +263,59 @@ const getProfile = async () => {
 	return profile;
 };
 
+/**
+ * Utility function: Runs the 'snc --help' command to test if the Now CLI is installed
+ * @returns boolean indicating if the Now CLI is installed
+ */
+const checkNowCLI = async () => {
+	let nowCliInstalled = true;
+
+	// Create a spinner and start it
+	const cliCheckSpinner = ora(
+		chalk.blue('Checking to see if the Now CLI is installed')
+	).start();
+
+	const commandPromise = new Promise((resolve, reject) => {
+		// spawn a child process to run the 'snc --help' command
+		const sncHelp = spawn('snc', ['--help']);
+		sncHelp.stderr.on('data', data => {
+			// if there is data sent to the error stream then the cli is not installed
+			nowCliInstalled = false;
+		});
+
+		sncHelp.on('close', code => {
+			resolve(nowCliInstalled);
+		});
+	});
+
+	nowCliInstalled = await commandPromise;
+
+	if (nowCliInstalled) {
+		// Now CLI is installed, stop the spinner with a green success message
+		cliCheckSpinner.succeed(chalk.green('Now CLI installed'));
+	} else {
+		// Now CLI is not installed, stop the spinner with a red fail message
+		cliCheckSpinner.fail(chalk.red('Now CLI not installed'));
+
+		// Log that the Now CLI is required
+		console.log(
+			chalk.red(
+				`In order to use the Yansa Labs Component CLI you must have the Now CLI installed`
+			)
+		);
+
+		// Log the link to install the Now CLI
+		console.log(
+			chalk.yellow(
+				`Install the Now CLI here: https://store.servicenow.com/sn_appstore_store.do#!/store/application/9085854adbb52810122156a8dc961910`
+			)
+		);
+	}
+
+	// return whether or not the Now CLI is installed
+	return nowCliInstalled;
+};
+
 module.exports = {
 	printHeader,
 	createFolder,
@@ -257,5 +325,6 @@ module.exports = {
 	selectComponentFromNowUIJson,
 	getFieldTypes,
 	getProfilesJson,
-	getProfile
+	getProfile,
+	checkNowCLI
 };
