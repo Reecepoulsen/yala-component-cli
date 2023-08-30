@@ -49,11 +49,11 @@ const checkForUpdates = async (curVersion, latestVersion) => {
 			)
 		).start();
 		const updateCommand = new Promise((resolve, reject) => {
-			const npmUpdate = spawn(
-				'npm',
-				['update', 'yala-component-cli', '-g'],
-				{ stdio: [0, 0, 0] }
-			);
+			const npmUpdate = spawn('npm', [
+				'update',
+				'yala-component-cli',
+				'-g'
+			]);
 			npmUpdate.on('close', code => resolve('ok'));
 		});
 		await updateCommand;
