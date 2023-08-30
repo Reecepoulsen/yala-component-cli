@@ -118,7 +118,7 @@ const createProject = async profile => {
 		}
 	]);
 
-	name = name.toLowerCase().replace(' ', '-');
+	name = name.toLowerCase().replace(/\s/g, '-');
 
 	const { confirmedName } = await prompt({
 		name: 'confirmedName',
