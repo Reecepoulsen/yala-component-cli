@@ -1,6 +1,10 @@
 const chalk = require('chalk');
 const { log } = require('../utils/log.js');
-const { printHeader } = require('../utils/utilities.js');
+const {
+	printHeader,
+	checkNowCLI,
+	checkNodeVersion
+} = require('../utils/utilities.js');
 const { spawn } = require('child_process');
 
 /**
@@ -35,6 +39,10 @@ const checkRequirements = async () => {
 		);
 		return false;
 	}
+
+	if (!(await checkNodeVersion())) return false;
+
+	if (!(await checkNowCLI())) return false;
 	return true;
 };
 
