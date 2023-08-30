@@ -269,6 +269,7 @@ const getProfile = async () => {
  */
 const checkNowCLI = async () => {
 	let nowCliInstalled = true;
+	let uiExtensionInstalled = true;
 
 	// Create a spinner and start it
 	const cliCheckSpinner = ora(
@@ -291,6 +292,23 @@ const checkNowCLI = async () => {
 	nowCliInstalled = await commandPromise;
 
 	if (nowCliInstalled) {
+		const checkUIExtensionCommand = new Promise((resolve, reject) => {
+			const uiExtensionHelp = spawn('snc', ['ui-component', 'help']);
+			uiExtensionHelp.stderr.on('data', data => {
+				uiExtensionInstalled = false;
+			});
+
+			uiExtensionHelp.on('close', code => {
+				resolve(uiExtensionInstalled);
+			});
+		});
+
+		if (!(await checkUIExtensionCommand)) {
+			cliCheckSpinner.fail(
+				"Now CLI installed, but the ui-component extension isn't"
+			);
+		}
+
 		// Now CLI is installed, stop the spinner with a green success message
 		cliCheckSpinner.succeed(chalk.green('Now CLI installed'));
 	} else {
@@ -300,14 +318,15 @@ const checkNowCLI = async () => {
 		// Log that the Now CLI is required
 		console.log(
 			chalk.red(
-				`In order to use the Yansa Labs Component CLI you must have the Now CLI installed`
+				`In order to use the Yansa Labs Component CLI you must have the Now CLI and its ui-component extension installed`
 			)
 		);
 
 		// Log the link to install the Now CLI
 		console.log(
 			chalk.yellow(
-				`Install the Now CLI here: https://store.servicenow.com/sn_appstore_store.do#!/store/application/9085854adbb52810122156a8dc961910`
+				`Install the Now CLI here: https://store.servicenow.com/sn_appstore_store.do#!/store/application/9085854adbb52810122156a8dc961910\n` +
+					`Install the ui-extension by running this command 'snc extension add --name ui-component`
 			)
 		);
 	}
