@@ -14,7 +14,8 @@ const {
 	createFile,
 	printHeader,
 	getProfilesJson,
-	getProfile
+	getProfile,
+	checkNowCLI
 } = require('../utils/utilities.js');
 const path = require('path');
 
@@ -324,6 +325,8 @@ const yalaDeploy = async (debugMode, forceDeploy) => {
 		const nodeVersion = await checkNodeVersion();
 		if (!nodeVersion)
 			throw Error('Running an incompatible node.js version');
+
+		if (!(await checkNowCLI())) throw Error('Now CLI not installed');
 
 		const originalNowUIJson = await getNowUIJson('now-ui.json');
 
