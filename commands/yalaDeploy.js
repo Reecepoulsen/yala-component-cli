@@ -127,7 +127,6 @@ const addFolderToZip = (folderPath, parentZipFolder) => {
 const saveProjectLocal = async () => {
 	const curPathDirs = process.cwd().split(path.sep);
 	const projectDirName = curPathDirs[curPathDirs.length - 1];
-	console.log(projectDirName);
 
 	const { template } = await prompt({
 		name: 'template',
