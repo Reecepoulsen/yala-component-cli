@@ -32,18 +32,14 @@ const getLatestVersion = async () => {
  */
 const checkForUpdates = async (curVersion, latestVersion) => {
 	let ranUpdate = false;
-	printHeader('Checking for updates');
-	const updateSpinner = ora(
-		'Checking for yala-component-cli updates'
-	).start();
 
 	if (curVersion != latestVersion) {
 		// If an update is needed, run npm update yala-component-cli -g
-		updateSpinner.warn(
+		const updateSpinner = ora(
 			chalk.yellow(
 				'A new version of yala-component-cli is available, updating now'
 			)
-		);
+		).start();
 		const updateCommand = new Promise((resolve, reject) => {
 			const npmUpdate = spawn(
 				'npm',
@@ -55,10 +51,6 @@ const checkForUpdates = async (curVersion, latestVersion) => {
 		await updateCommand;
 		ranUpdate = true;
 		updateSpinner.succeed(chalk.green('yala-component-cli updated'));
-	} else {
-		updateSpinner.succeed(
-			chalk.green('Running latest yala-component-cli version')
-		);
 	}
 
 	return ranUpdate;
