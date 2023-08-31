@@ -12,19 +12,13 @@ const getCurrentVersion = async () => {
 	// run yala -v to see what is installed
 	let version = '';
 	const yalaVersionCommand = new Promise((resolve, reject) => {
-		// const yalaVersion = spawn('powershell', ['-c', 'yala -v']);
 		const yalaVersion = spawn('yala', ['-v']);
-		yalaVersion.on("error", e => {
-			console.log(e)
-		})
-
 		yalaVersion.stdout.on('data', output => {
 			version = output.toString();
 		});
 
-		yalaVersion.on("close", code => {
-			resolve(version)
-		})
+		yalaVersion.on('error', e => (version = false));
+		yalaVersion.on('close', code => resolve(version));
 	});
 	return yalaVersionCommand;
 };
@@ -35,12 +29,15 @@ const getCurrentVersion = async () => {
  */
 const getLatestVersion = async () => {
 	// run npm view yala-component-cli to check the latest version
+	let version = '';
 	const npmViewCommand = new Promise((resolve, reject) => {
-		// const npmView = spawn('powershell', ['-c', 'npm view yala-component-cli version']);
 		const npmView = spawn('npm', ['view', 'yala-component-cli', 'version']);
 		npmView.stdout.on('data', output => {
-			resolve(output.toString());
+			version = output.toString();
 		});
+
+		npmView.on('error', e => (version = false));
+		npmView.on('close', code => resolve(version));
 	});
 	return npmViewCommand;
 };
@@ -51,7 +48,7 @@ const getLatestVersion = async () => {
 const checkForUpdates = async (curVersion, latestVersion) => {
 	let ranUpdate = false;
 
-	if (curVersion != latestVersion) {
+	if (curVersion && curVersion != latestVersion) {
 		// If an update is needed, run npm update yala-component-cli -g
 		const updateSpinner = ora(
 			chalk.yellow(
@@ -76,29 +73,28 @@ const checkForUpdates = async (curVersion, latestVersion) => {
 
 const init = async ({ clear = true }) => {
 	try {
-		const curVersion = await getCurrentVersion();
-		const latestVersion = await getLatestVersion();
-		const ranUpdate = await checkForUpdates(curVersion, latestVersion);
-		const version = ranUpdate ? latestVersion : curVersion;
-		console.log(curVersion);
-		console.log(latestVersion);
-		console.log(ranUpdate);
-		console.log(version);
-	
-		unhandled();
-		welcome({
+		const welcomeObj = {
 			title: `yala-component-cli`,
 			tagLine: `by Yansa Labs`,
 			description:
 				"Yansa Labs' improved CLI solution for ServiceNow custom component development",
-			version: version.replace('\n', ''),
+			version: '',
 			bgColor: '#36BB09',
 			color: '#000000',
 			bold: true,
 			clear
-		});
+		};
+
+		const curVersion = await getCurrentVersion();
+		const latestVersion = await getLatestVersion();
+		const ranUpdate = await checkForUpdates(curVersion, latestVersion);
+		let version = ranUpdate ? latestVersion : curVersion;
+		if (version) welcomeObj.version = version.replace('\n', '');
+
+		unhandled();
+		welcome(welcomeObj);
 	} catch (error) {
-		console.log("Error during initialization" + error);
+		console.log('Error during initialization' + error);
 	}
 };
 
