@@ -13,14 +13,13 @@ const startDevServer = async () => {
 	const commandPromise = new Promise((resolve, reject) => {
 		// Spawn a child process to run the 'snc ui-component develop' command, this child will use the parent's input, output, and error streams
 		const developCommand = spawn('snc', ['ui-component', 'develop'], {
-			stdio: ["pipe", "pipe", "pipe"]
+			stdio: ['pipe', 'pipe', 0]
 		});
-		developCommand.stderr.on("data", e =>  {
-			if (!e.includes("%") && !e.includes("Warning")) process.stdout.write(`${e}`)
-		});
-		developCommand.stdout.on("data", output => process.stdout.write(`${output}`))
+		developCommand.stdout.on('data', output =>
+			process.stdout.write(`${output}`)
+		);
 
-		developCommand.on("error", e => commandSuccess = false);
+		developCommand.on('error', e => (commandSuccess = false));
 		developCommand.on('close', code => resolve(commandSuccess));
 	});
 	return commandPromise;

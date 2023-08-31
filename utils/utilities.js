@@ -265,8 +265,9 @@ const getProfile = async () => {
 
 const addUIExtension = async () => {
 	const installSpinner = ora(
-		chalk.blue('Adding ui-component extension')
+		chalk.blue('Adding ui-component extension, this may take a few moments')
 	).start();
+	let commandSuccess = true;
 	const commandPromise = new Promise((resolve, reject) => {
 		const addUIExtension = spawn('snc', [
 			'extension',
@@ -274,10 +275,22 @@ const addUIExtension = async () => {
 			'--name',
 			'ui-component'
 		]);
-		addUIExtension.on('close', code => resolve('ok'));
+		addUIExtension.on('error', e => (commandSuccess = false));
+		addUIExtension.on('close', code => resolve(commandSuccess));
 	});
-	await commandPromise;
-	installSpinner.succeed(chalk.green('ui-component extension added'));
+
+	commandSuccess = await commandPromise;
+	if (commandSuccess) {
+		installSpinner.succeed(chalk.green('ui-component extension added'));
+	} else {
+		installSpinner.fail(
+			chalk.red(
+				"Unable to automatically add ui-component extension, add the extension manually by running 'snc extension add --name ui-component'"
+			)
+		);
+	}
+
+	return commandSuccess;
 };
 
 /**
@@ -296,40 +309,41 @@ const checkNowCLI = async () => {
 	const commandPromise = new Promise((resolve, reject) => {
 		// spawn a child process to run the 'snc --help' command
 		const sncHelp = spawn('snc', ['--help']);
-		sncHelp.on("error", e => {
-			nowCliInstalled = false;
-		})
+		sncHelp.on('error', e => (nowCliInstalled = false));
 
-		sncHelp.on('close', code => {
-			resolve(nowCliInstalled);
-		});
-		
-		
+		sncHelp.on('close', code => resolve(nowCliInstalled));
 	});
 
 	nowCliInstalled = await commandPromise;
 
 	if (nowCliInstalled) {
+		let uiExtensionInstalled = true;
 		const checkUIExtensionCommand = new Promise((resolve, reject) => {
 			const uiExtensionHelp = spawn('snc', ['ui-component', 'help']);
-			uiExtensionHelp.on('error', e => {
-				uiExtensionInstalled = false;
-			});
+			uiExtensionHelp.on('error', e => (uiExtensionInstalled = false));
+			uiExtensionHelp.stderr.on(
+				'data',
+				e => (uiExtensionInstalled = false)
+			);
 
-			uiExtensionHelp.on('close', code => {
-				resolve(uiExtensionInstalled);
-			});
+			uiExtensionHelp.on('close', code => resolve(uiExtensionInstalled));
 		});
 
-		if (!(await checkUIExtensionCommand)) {
+		uiExtensionInstalled = await checkUIExtensionCommand;
+		if (!uiExtensionInstalled) {
 			cliCheckSpinner.warn(
-				"Now CLI installed, but the ui-component extension isn't"
+				chalk.yellow(
+					"Now CLI installed, but the ui-component extension isn't"
+				)
 			);
-			await addUIExtension();
+			if (!(await addUIExtension()))
+				throw new Error('Failed to add ui-component extension');
 		}
 
 		// Now CLI is installed, stop the spinner with a green success message
-		cliCheckSpinner.succeed(chalk.green('Now CLI installed'));
+		cliCheckSpinner.succeed(
+			chalk.green('Now CLI and ui-component extension installed')
+		);
 	} else {
 		// Now CLI is not installed, stop the spinner with a red fail message
 		cliCheckSpinner.fail(chalk.red('Now CLI not installed'));
@@ -351,7 +365,6 @@ const checkNowCLI = async () => {
 
 	// return whether or not the Now CLI is installed
 	return nowCliInstalled;
-
 };
 
 module.exports = {
