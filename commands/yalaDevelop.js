@@ -9,15 +9,19 @@ const { checkNodeVersion, printHeader } = require('../utils/utilities.js');
  */
 const startDevServer = async () => {
 	printHeader('Starting development server');
+	let commandSuccess = true;
 	const commandPromise = new Promise((resolve, reject) => {
 		// Spawn a child process to run the 'snc ui-component develop' command, this child will use the parent's input, output, and error streams
 		const developCommand = spawn('snc', ['ui-component', 'develop'], {
-			stdio: [0, 0, 0]
+			stdio: ["pipe", "pipe", "pipe"]
 		});
+		developCommand.stderr.on("data", e =>  {
+			if (!e.includes("%") && !e.includes("Warning")) process.stdout.write(`${e}`)
+		});
+		developCommand.stdout.on("data", output => process.stdout.write(`${output}`))
 
-		developCommand.on('close', code => {
-			resolve('ok');
-		});
+		developCommand.on("error", e => commandSuccess = false);
+		developCommand.on('close', code => resolve(commandSuccess));
 	});
 	return commandPromise;
 };

@@ -173,6 +173,7 @@ const createProject = async profile => {
 			}
 		});
 
+		createProject.on("error", e => commandSuccess = false)
 		createProject.on('close', code => {
 			resolve(commandSuccess);
 		});
@@ -227,12 +228,14 @@ el.innerHTML = "";
  */
 const installDependencies = async () => {
 	printHeader('Installing dependencies');
+	let installSuccess = true;
 	const commandPromise = new Promise((resolve, reject) => {
 		// Spawn a child process to run 'npm install', this process will use the parent's input, output, and error streams
 		const npmInstall = spawn('npm', ['install'], { stdio: [0, 0, 0] });
 
+		npmInstall.on('error', e => installSuccess = false)
 		npmInstall.on('close', code => {
-			resolve('ok');
+			resolve(installSuccess);
 		});
 	});
 
@@ -273,7 +276,9 @@ const yalaSetup = async debugMode => {
 		}
 
 		// Run 'npm install'
-		await installDependencies();
+		if (!(await installDependencies())) {
+			console.log(chalk.yellow("Project created, switch to the project folder and run 'npm install' to install the project dependencies"))
+		}
 
 		console.log(
 			chalk.green(

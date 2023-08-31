@@ -36,21 +36,20 @@ const runSNDeploy = async (profile, nodeVersion, forceDeploy) => {
 
 		// Spawn child process to run the 'snc ui-component deploy' command
 		const deployCommand = spawn('snc', args, {
-			stdio: [0, 'pipe', 0]
+			stdio: ['pipe', 'pipe', 'pipe']
 		});
 
 		deployCommand.stdout.on('data', output => {
 			if (output.includes('Deployment to') && output.includes('failed')) {
-				process.stdout.write(chalk.red(`${output}`));
+				console.log(chalk.red(`${output}`));
 				commandSuccessful = false;
 			} else {
-				process.stdout.write(`${output}`);
+				console.log(`${output}`);
 			}
 		});
 
-		deployCommand.on('close', code => {
-			resolve(commandSuccessful);
-		});
+		deployCommand.on("error", e => commandSuccessful = false);
+		deployCommand.on('close', code => resolve(commandSuccessful));
 	});
 
 	return commandPromise;

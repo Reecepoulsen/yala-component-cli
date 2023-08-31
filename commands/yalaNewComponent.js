@@ -187,7 +187,7 @@ const getComponentDescription = async () => {
 	const { desc } = await prompt({
 		name: 'desc',
 		type: 'input',
-		message: 'Give a brief description of your component: ',
+		message: 'Give a brief description of your component:',
 		required: true
 	});
 
@@ -287,8 +287,8 @@ const yalaNewComponent = async debugMode => {
 		process.chdir('src');
 
 		// Check to make sure that we are in the src directory
-		if ((await checkSrcDirectory()) == false)
-			throw new Error('Not in src directory');
+		// if ((await checkSrcDirectory()) == false)
+		// 	throw new Error('Not in src directory');
 
 		// Inner component or deployed component
 		const type = await getComponentType();
