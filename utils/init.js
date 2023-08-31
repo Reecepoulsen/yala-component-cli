@@ -10,11 +10,21 @@ const { spawn } = require('child_process');
  */
 const getCurrentVersion = async () => {
 	// run yala -v to see what is installed
+	let version = '';
 	const yalaVersionCommand = new Promise((resolve, reject) => {
+		// const yalaVersion = spawn('powershell', ['-c', 'yala -v']);
 		const yalaVersion = spawn('yala', ['-v']);
+		yalaVersion.on("error", e => {
+			console.log(e)
+		})
+
 		yalaVersion.stdout.on('data', output => {
-			resolve(output.toString());
+			version = output.toString();
 		});
+
+		yalaVersion.on("close", code => {
+			resolve(version)
+		})
 	});
 	return yalaVersionCommand;
 };
@@ -26,6 +36,7 @@ const getCurrentVersion = async () => {
 const getLatestVersion = async () => {
 	// run npm view yala-component-cli to check the latest version
 	const npmViewCommand = new Promise((resolve, reject) => {
+		// const npmView = spawn('powershell', ['-c', 'npm view yala-component-cli version']);
 		const npmView = spawn('npm', ['view', 'yala-component-cli', 'version']);
 		npmView.stdout.on('data', output => {
 			resolve(output.toString());
@@ -64,23 +75,31 @@ const checkForUpdates = async (curVersion, latestVersion) => {
 };
 
 const init = async ({ clear = true }) => {
-	const curVersion = await getCurrentVersion();
-	const latestVersion = await getLatestVersion();
-	const ranUpdate = await checkForUpdates(curVersion, latestVersion);
-	const version = ranUpdate ? latestVersion : curVersion;
-
-	unhandled();
-	welcome({
-		title: `yala-component-cli`,
-		tagLine: `by Yansa Labs`,
-		description:
-			"Yansa Labs' improved CLI solution for ServiceNow custom component development",
-		version: version.replace('\n', ''),
-		bgColor: '#36BB09',
-		color: '#000000',
-		bold: true,
-		clear
-	});
+	try {
+		const curVersion = await getCurrentVersion();
+		const latestVersion = await getLatestVersion();
+		const ranUpdate = await checkForUpdates(curVersion, latestVersion);
+		const version = ranUpdate ? latestVersion : curVersion;
+		console.log(curVersion);
+		console.log(latestVersion);
+		console.log(ranUpdate);
+		console.log(version);
+	
+		unhandled();
+		welcome({
+			title: `yala-component-cli`,
+			tagLine: `by Yansa Labs`,
+			description:
+				"Yansa Labs' improved CLI solution for ServiceNow custom component development",
+			version: version.replace('\n', ''),
+			bgColor: '#36BB09',
+			color: '#000000',
+			bold: true,
+			clear
+		});
+	} catch (error) {
+		console.log("Error during initialization" + error);
+	}
 };
 
 module.exports = {

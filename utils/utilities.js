@@ -296,14 +296,15 @@ const checkNowCLI = async () => {
 	const commandPromise = new Promise((resolve, reject) => {
 		// spawn a child process to run the 'snc --help' command
 		const sncHelp = spawn('snc', ['--help']);
-		sncHelp.stderr.on('data', data => {
-			// if there is data sent to the error stream then the cli is not installed
+		sncHelp.on("error", e => {
 			nowCliInstalled = false;
-		});
+		})
 
 		sncHelp.on('close', code => {
 			resolve(nowCliInstalled);
 		});
+		
+		
 	});
 
 	nowCliInstalled = await commandPromise;
@@ -311,7 +312,7 @@ const checkNowCLI = async () => {
 	if (nowCliInstalled) {
 		const checkUIExtensionCommand = new Promise((resolve, reject) => {
 			const uiExtensionHelp = spawn('snc', ['ui-component', 'help']);
-			uiExtensionHelp.stderr.on('data', data => {
+			uiExtensionHelp.on('error', e => {
 				uiExtensionInstalled = false;
 			});
 
@@ -350,6 +351,7 @@ const checkNowCLI = async () => {
 
 	// return whether or not the Now CLI is installed
 	return nowCliInstalled;
+
 };
 
 module.exports = {
