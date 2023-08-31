@@ -263,6 +263,23 @@ const getProfile = async () => {
 	return profile;
 };
 
+const addUIExtension = async () => {
+	const installSpinner = ora(
+		chalk.blue('Adding ui-component extension')
+	).start();
+	const commandPromise = new Promise((resolve, reject) => {
+		const addUIExtension = spawn('snc', [
+			'extension',
+			'add',
+			'--name',
+			'ui-component'
+		]);
+		addUIExtension.on('close', code => resolve('ok'));
+	});
+	await commandPromise;
+	installSpinner.succeed(chalk.green('ui-component extension added'));
+};
+
 /**
  * Utility function: Runs the 'snc --help' command to test if the Now CLI is installed
  * @returns boolean indicating if the Now CLI is installed
@@ -304,9 +321,10 @@ const checkNowCLI = async () => {
 		});
 
 		if (!(await checkUIExtensionCommand)) {
-			cliCheckSpinner.fail(
+			cliCheckSpinner.warn(
 				"Now CLI installed, but the ui-component extension isn't"
 			);
+			await addUIExtension();
 		}
 
 		// Now CLI is installed, stop the spinner with a green success message
@@ -325,8 +343,7 @@ const checkNowCLI = async () => {
 		// Log the link to install the Now CLI
 		console.log(
 			chalk.yellow(
-				`Install the Now CLI here: https://store.servicenow.com/sn_appstore_store.do#!/store/application/9085854adbb52810122156a8dc961910\n` +
-					`Install the ui-extension by running this command 'snc extension add --name ui-component`
+				`Install the Now CLI here: https://store.servicenow.com/sn_appstore_store.do#!/store/application/9085854adbb52810122156a8dc961910\n`
 			)
 		);
 	}
