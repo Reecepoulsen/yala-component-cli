@@ -48,7 +48,9 @@ const getLatestVersion = async () => {
 const checkForUpdates = async (curVersion, latestVersion) => {
 	let ranUpdate = false;
 
-	if (curVersion && curVersion != latestVersion) {
+	if (!curVersion) return false;
+
+	if (curVersion != latestVersion) {
 		// If an update is needed, run npm update yala-component-cli -g
 		const updateSpinner = ora(
 			chalk.yellow(

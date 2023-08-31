@@ -299,7 +299,6 @@ const addUIExtension = async () => {
  */
 const checkNowCLI = async () => {
 	let nowCliInstalled = true;
-	let uiExtensionInstalled = true;
 
 	// Create a spinner and start it
 	const cliCheckSpinner = ora(
