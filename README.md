@@ -4,6 +4,8 @@ Speed up your custom component development with Yansa Labs' Now CLI wrapper!
 
 This package adds aditional functionality around ServiceNow's CLI to simplify the setup process and reduce the learning curve while using the CLI for local custom component development.
 
+Check out this blog post for more details [Unlocking the Potential of ServiceNow's CLI](https://reecepoulsen.hashnode.dev/unlocking-the-potential-of-servicenows-cli)
+
 ## Installation
 
 ```
