@@ -41,14 +41,21 @@ const runSNDeploy = async (profile, nodeVersion, forceDeploy) => {
 
 		deployCommand.stdout.on('data', output => {
 			if (output.includes('Deployment to') && output.includes('failed')) {
-				console.log(chalk.red(`${output}`));
+				process.stdout.write(chalk.red(`${output}`));
 				commandSuccessful = false;
 			} else {
-				console.log(`${output}`);
+				process.stdout.write(`${output}`);
 			}
 		});
 
-		deployCommand.on("error", e => commandSuccessful = false);
+		deployCommand.stderr.on('data', e => {
+			process.stdout.write(e.toString());
+		});
+
+		deployCommand.on('error', e => {
+			process.stdout.write(e.toString());
+			commandSuccessful = false;
+		});
 		deployCommand.on('close', code => resolve(commandSuccessful));
 	});
 
