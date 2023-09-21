@@ -338,8 +338,10 @@ const yalaDeploy = async (debugMode, forceDeploy) => {
 		if (nodeVersion == '12.16.1') {
 			// IMPORTANT: This is a workaround for a bug where the now-ui.json doesn't recognize the actions field at the component level when using the old Now CLI
 			// Create a backup of the now-ui.json and remove the actions field from each component in the json object so the deploy will work
-			const backupName = 'now-ui-backup.json';
-			await backupAndChangeNowUIJson(originalNowUIJson, backupName);
+			await backupAndChangeNowUIJson(
+				originalNowUIJson,
+				'now-ui-backup.json'
+			);
 		}
 
 		// Get the profile they want to deploy to
@@ -352,7 +354,7 @@ const yalaDeploy = async (debugMode, forceDeploy) => {
 
 		if (nodeVersion == '12.16.1') {
 			// Complete the workaround by restoring the original version of the now-ui json from the backup
-			await restoreNowUIJsonFromBackup(backupName);
+			await restoreNowUIJsonFromBackup('now-ui-backup.json');
 		}
 
 		// Save the code
